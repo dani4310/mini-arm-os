@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "reg.h"
 #include "asm.h"
-
+#include "host.h"
 /* Size of our user task stacks in words */
 #define STACK_SIZE	256
 
@@ -109,9 +109,10 @@ int main(void)
 	unsigned int *usertasks[TASK_LIMIT];
 	size_t task_count = 0;
 	size_t current_task;
-
+	int handle=host_action(SYS_OPEN, "log", 4);
 	usart_init();
-
+	char *swin="switch in\n";
+	char *swout="switch out\n";
 	print_str("OS: Starting...\n");
 	print_str("OS: First create task 1\n");
 	usertasks[0] = create_task(user_stacks[0], &task1_func);
@@ -129,12 +130,14 @@ int main(void)
 	current_task = 0;
 
 	while (1) {
+		host_action(SYS_WRITE, handle,(void *)swin, strlen(swin));
 		print_str("OS: Activate next task\n");
 		usertasks[current_task] = activate(usertasks[current_task]);
+		host_action(SYS_WRITE, handle,(void *)swout, strlen(swout));
 		print_str("OS: Back to OS\n");
 
 		current_task = current_task == (task_count - 1) ? 0 : current_task + 1;
 	}
-
+	host_action(SYS_CLOSE,handle);
 	return 0;
 }
