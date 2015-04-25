@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "reg.h"
-
+#include "host.h"
 /* Bit definition for RCC_CR register */
 #define RCC_CR_HSION	((uint32_t) 0x00000001)		/*!< Internal High Speed clock enable */
 #define RCC_CR_HSEON	((uint32_t) 0x00010000)		/*!< External High Speed clock enable */
@@ -39,6 +39,8 @@ extern uint32_t _ebss;
 /* end address for the stack. defined in linker script */
 extern uint32_t _estack;
 
+//extern void systick_handler();
+
 void rcc_clock_init(void);
 
 void reset_handler(void)
@@ -74,6 +76,32 @@ void svc_handler(void) __attribute((weak, alias("default_handler")));
 void pendsv_handler(void) __attribute((weak, alias("default_handler")));
 void systick_handler(void) __attribute((weak, alias("default_handler")));
 
+// 	char *swin="switch in\n";
+// 	char *swout="switch out\n";
+// void contextswitch(){
+// 	__asm__(
+// 	"mrs r0, psp\r\n"
+// 	"stmdb r0!, {r4, r5, r6, r7, r8, r9, r10, r11, lr}\r\n"
+
+
+// 	"pop {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\r\n"
+// 	"msr psr_nzcvq, ip\r\n"
+
+// 	"bx lr");
+// 	// __asm__(
+// 	// 	"push {r0,r1,r2,r3,r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}");
+// 	//  static int systick=0;
+// 	//  systick++;
+// 	// int handle=host_action(SYS_OPEN, "log", 8);
+// 	// host_action(SYS_WRITE, handle,(void *)swout, strlen(swout));
+// 	// 	// host_action(SYS_WRITE, handle,(void *)swin, strlen(swin));
+// 	// host_action(SYS_CLOSE,handle);
+// 	//  __asm__(
+// 	// 	"pop {r0,r1,r2,r3,r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}");
+// 	//systick_handler();
+
+// }
+
 __attribute((section(".isr_vector")))
 uint32_t *isr_vectors[] = {
 	(uint32_t *) &_estack,			/* stack pointer */
@@ -93,6 +121,9 @@ uint32_t *isr_vectors[] = {
 	(uint32_t *) pendsv_handler,		/* pendsv handler */
 	(uint32_t *) systick_handler		/* systick handler */
 };
+
+
+
 
 void rcc_clock_init(void)
 {
